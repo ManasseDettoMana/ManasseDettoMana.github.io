@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contatore Visite e Pixel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            overflow: hidden;
+        }
+        #header {
+            background-color: white;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #uncounted {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: bold;
+        }
+        #resetCount {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: bold;
+        }
+        .button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        #resetStorage {
+            background-color: #FF0000;
+        }
+        #resetStorage:hover {
+            background-color: #CC0000;
+        }
+        canvas {
+            position: absolute;
+            top: 150px; /* Altezza dell'header */
+            left: 0;
+            width: 100vw;
+            height: calc(100vh - 150px);
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <h1>Benvenuto! Colora i pixel!</h1>
+        <p>Contatore visite:</p>
+        <p id="counter">0</p>
+        <p id="resetCount">Reset: I</p>
+        <button id="clickButton" class="button">Colora un Pixel!</button>
+        <button id="resetStorage" class="button">Reset Local Storage</button>
+        <p id="uncounted">Pixel non colorati: 0</p>
+    </div>
+    <canvas id="canvas"></canvas>
+    
+    <script>
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight - 150; // Sottrai altezza dell'header
+        
+        const totalPixels = canvas.width * canvas.height;
+        let count = parseInt(localStorage.getItem("visitCount")) || 0;
+        let resetCounter = parseInt(localStorage.getItem("resetCounter")) || 0;
+        let pixelData = JSON.parse(localStorage.getItem("pixelData")) || [];
+        
+        // Funzione per convertire in numeri romani
+        function toRoman(num) {
+            const romanNumerals = [
+                [1000, "M"], [900, "CM"], [500, "D"], [400, "CD"], [100, "C"],
+                [90, "XC"], [50, "L"], [40, "XL"], [10, "X"],
+                [9, "IX"], [5, "V"], [4, "IV"], [1, "I"]
+            ];
+            let roman = "";
+            for (let [value, numeral] of romanNumerals) {
+                while (num >= value) {
+                    roman += numeral;
+                    num -= value;
+                }
+            }
+            return roman;
+        }
+
+        // Aggiornamento contatore delle visite
+        count++;
+        localStorage.setItem("visitCount", count);
+        document.getElementById("counter").textContent = count;
+
+        // Verifica se è necessario fare un reset
+        if (pixelData.length >= totalPixels) {
+            pixelData = [];
+            resetCounter++;
+            localStorage.setItem("resetCounter", resetCounter);
+            localStorage.setItem("pixelData", JSON.stringify(pixelData));
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Pulisce il canvas
+        }
+
+        // Aggiungi nuovi pixel per ogni visita
+        while (pixelData.length < count) {
+            let x = Math.floor(Math.random() * canvas.width);
+            let y = Math.floor(Math.random() * canvas.height);
+            let color = ["red", "green", "blue"][pixelData.length % 3];
+            pixelData.push({ x, y, color });
+        }
+
+        localStorage.setItem("pixelData", JSON.stringify(pixelData));
+
+        // Disegna i pixel colorati sul canvas
+        pixelData.forEach(pixel => {
+            ctx.fillStyle = pixel.color;
+            ctx.fillRect(pixel.x, pixel.y, 1, 1);
+        });
+
+        // Visualizza i pixel non ancora colorati
+        document.getElementById("uncounted").textContent = "Pixel non colorati: " + (totalPixels - pixelData.length);
+        document.getElementById("resetCount").textContent = "Reset: " + toRoman(resetCounter);
+
+        // Gestione clic sul pulsante per colorare un pixel
+        document.getElementById("clickButton").addEventListener("click", function() {
+            if (pixelData.length < totalPixels) {
+                // Aggiungi un nuovo pixel
+                let x = Math.floor(Math.random() * canvas.width);
+                let y = Math.floor(Math.random() * canvas.height);
+                let color = ["red", "green", "blue"][pixelData.length % 3];
+                pixelData.push({ x, y, color });
+                localStorage.setItem("pixelData", JSON.stringify(pixelData));
+                
+                // Rendi visibile il nuovo pixel
+                ctx.fillStyle = color;
+                ctx.fillRect(x, y, 1, 1);
+
+                // Aggiorna il contatore dei pixel non colorati
+                document.getElementById("uncounted").textContent = "Pixel non colorati: " + (totalPixels - pixelData.length);
+            }
+
+            // Se tutti i pixel sono colorati, resettiamo
+            if (pixelData.length >= totalPixels) {
+                pixelData = [];
+                resetCounter++;
+                localStorage.setItem("resetCounter", resetCounter);
+                localStorage.setItem("pixelData", JSON.stringify(pixelData));
+                ctx.clearRect(0, 0, canvas.width, canvas.height); // Resetta il canvas
+                document.getElementById("uncounted").textContent = "Pixel non colorati: " + (totalPixels - pixelData.length);
+                document.getElementById("resetCount").textContent = "Reset: " + toRoman(resetCounter);
+            }
+        });
+
+        // Pulsante per resettare il localStorage
+        document.getElementById("resetStorage").addEventListener("click", function() {
+            if (confirm("Sei sicuro di voler resettare tutti i dati?")) {
+                localStorage.clear();
+                location.reload(); // Ricarica la pagina per applicare il reset
+            }
+        });
+    </script>
+</body>
+</html>
