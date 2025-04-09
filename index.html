@@ -33,8 +33,26 @@
       <h3>Progetto 2</h3>
       <p>Descrizione del progetto. Tecnologie usate: React, Node.js, MongoDB.</p>
     </div>
+    <div class="project video">
+        <iframe src="https://www.youtube.com/embed/a92J4VNDtKg" title="H.I.M - My Way rmx by mana" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+    <div class="project toggle-gallery" onclick="toggleGallery()">
+        <h3>Progetto 3 - Galleria</h3>
+        <p>Una collezione di immagini</p>
+        <div id="gallery" class="image-grid hidden">
+            <img src="./images/5a69fe12-015b-4634-b470-683a96a9719a.jfif" alt="img1">
+            <img src="./images/a389f888-8f77-42db-bc22-5e83c0eab9d0.jfif" alt="img2">
+            <img src="./images/eb8d34c4-f321-4466-b5ec-286ad1ddf795.jfif" alt="img3">
+            <img src="./images/brother-sister-duo-Durry.jpg" alt="img4">
+            <img src="./images/brother-sister-duo-Durry.jpg" alt="img5">
+            <img src="./images/Not-laughing.jpg" alt="img6">
+            <img src="./images/brother-sister-duo-Durry.jpg" alt="img7">
+            <img src="./images/Not-laughing.jpg" alt="img8">
+            <img src="./images/2f3edfc8-f9cb-4475-9785-9ff626deeafa.jfif" alt="img9">
+        </div>
+      </div>
+      
   </section>
-
   <section id="contact">
     <h2>Contatti</h2>
     <p>Email: smarrazzomanasse@email.com</p>
@@ -44,5 +62,12 @@
   <footer>
     <p>&copy; 2025 Manasse Smarrazzo. Tutti i diritti riservati.</p>
   </footer>
+
+<script>
+function toggleGallery() {
+    const gallery = document.getElementById('gallery');
+    gallery.classList.toggle('hidden');
+}
+</script>
 </body>
 </html>
